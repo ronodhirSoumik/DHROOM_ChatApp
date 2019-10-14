@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity{
     private ChatMessage chatAdapter;
     private List<messageItem> ownChatList = new ArrayList<>();
     private List<messageItem> chatFullList = new ArrayList<>();
+
+    private static final String FILE_NAME = "saveChat.txt";
 
     Handler handler=new Handler(new Handler.Callback() {
         @Override
@@ -132,7 +136,37 @@ public class MainActivity extends AppCompatActivity{
         }).start();
     }
 
+    public void onSaveClicked(View v){
+        FileOutputStream fos = null;
+        String newline = "\n";
 
+        try {
+            fos =openFileOutput(FILE_NAME, MODE_PRIVATE);
+            // PrintWriter pw = new PrintWriter(fos);
+            for(int i=0; i<chatFullList.size(); i++){
+                // pw.write("It is here");
+                String l = chatFullList.get(i).getIp().concat(" : ");
+                fos.write(l.getBytes());
+                fos.write(chatFullList.get(i).getMsg().getBytes());
+                fos.write(newline.getBytes());
+                Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n");}
+
+            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
 
     public void onStartServerClicked(View v){
         String port = receivePortEditText.getText().toString();
