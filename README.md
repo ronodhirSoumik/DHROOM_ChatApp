@@ -25,5 +25,5 @@ Clicking on the 'SEND FILE' button and then inserting a text file, users can exc
 Clicking on the back button of the phone, user can exit chat.
 
 ## Work Contribution:
-Arup Datta: Splash screen, file transfer
-Soumik Sarker: P2P connection building, color change, conversation save
+### Arup Datta: Splash screen, file transfer
+### Soumik Sarker: P2P connection building, color change, conversation save
