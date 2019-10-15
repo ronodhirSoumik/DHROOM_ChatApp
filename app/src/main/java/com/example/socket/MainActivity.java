@@ -2,10 +2,16 @@ package com.example.socket;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -19,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,10 +53,12 @@ public class MainActivity extends AppCompatActivity{
     SendReceive sendReceive;
 
     static final int MESSAGE_READ=1;
-    static final String TAG = "yourTag";
+    static final String TAG = "DHROOM";
+
+    String textFromFile= "";
 
     String chatMessage = "";
-    String colorCode =  "#green";
+    String colorCode =  "#*green";
 
     Boolean setColor = false;
 
@@ -59,6 +68,9 @@ public class MainActivity extends AppCompatActivity{
 
     private static final String FILE_NAME = "saveChat.txt";
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
     Handler handler=new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -67,21 +79,30 @@ public class MainActivity extends AppCompatActivity{
                 case MESSAGE_READ:
                     byte[] readBuff= (byte[]) msg.obj;
                     String tempMsg=new String(readBuff,0,msg.arg1);
-                    if(tempMsg.charAt(0) == '#'){
-                        Log.d(TAG,"Color is: "+ tempMsg);
-                        if(tempMsg.equals("#green")){
-                            setColor = false;
-                            Log.d(TAG, "SetColor is: "+setColor);
-                            chatList.setBackgroundColor(Color.parseColor("#008577"));
-                        }
-                        else {
-                            setColor = true;
-                            Log.d(TAG, "SetColor is: "+setColor);
-                            chatList.setBackgroundColor(Color.parseColor("#00574B"));
+                    if(tempMsg.charAt(0) == '#') {
+                        if (tempMsg.charAt(1) == '*') {
+
+                            Log.d(TAG, "Color is: " + tempMsg);
+                            if (tempMsg.equals("#*green")) {
+                                setColor = false;
+                                Log.d(TAG, "SetColor is: " + setColor);
+                                chatList.setBackgroundColor(Color.parseColor("#008577"));
+                            } else {
+                                setColor = true;
+                                Log.d(TAG, "SetColor is: " + setColor);
+                                chatList.setBackgroundColor(Color.parseColor("#00574B"));
+
+                            }
 
                         }
-
+                        if (tempMsg.charAt(1) == '@') {
+                            tempMsg = tempMsg.replace("#@", "");
+                            Toast.makeText(getApplicationContext(), "File saved in " + getFilesDir(), Toast.LENGTH_SHORT).show();
+                            String fileText = tempMsg;
+                            writeToFile("file", fileText, true);
+                        }
                     }
+
                     else {
                         //chatText.setText(tempMsg);
                         displayChat(tempMsg);
@@ -111,6 +132,8 @@ public class MainActivity extends AppCompatActivity{
 
         dialog = new Dialog(this);
 
+        verifyDataFolder();
+        verifyStoragePermissions();
 
     }
 
@@ -152,13 +175,13 @@ public class MainActivity extends AppCompatActivity{
 
     public void onColorClicked(View v){
         if(setColor == false){
-            colorCode = "#dark";
+            colorCode = "#*dark";
             setColor = true;
             chatList.setBackgroundColor(Color.parseColor("#00574B"));
 
         }
         else {
-            colorCode = "#green";
+            colorCode = "#*green";
             setColor = false;
             chatList.setBackgroundColor(Color.parseColor("#008577"));
         }
@@ -178,36 +201,61 @@ public class MainActivity extends AppCompatActivity{
         }).start();
     }
 
-    public void onSaveClicked(View v){
-        FileOutputStream fos = null;
-                    String newline = "\n";
+    public void onSaveClicked(View v) {
 
-                    try {
-                        fos =openFileOutput(FILE_NAME, MODE_PRIVATE);
-                        // PrintWriter pw = new PrintWriter(fos);
-                        for(int i=0; i<chatFullList.size(); i++){
-                            // pw.write("It is here");
-                            String l = chatFullList.get(i).getIp().concat(" : ");
-                            fos.write(l.getBytes());
-                            fos.write(chatFullList.get(i).getMsg().getBytes());
-                            fos.write(newline.getBytes());
-                            Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n");}
+/*        FileOutputStream fos = null;
+        String newline = "\n";
 
-                        Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (fos != null) {
-                            try {
-                                fos.close();
+        try {
+            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
+            // PrintWriter pw = new PrintWriter(fos);
+            for (int i = 0; i < chatFullList.size(); i++) {
+                // pw.write("It is here");
+                String l = chatFullList.get(i).getIp().concat(" : ");
+                fos.write(l.getBytes());
+                fos.write(chatFullList.get(i).getMsg().getBytes());
+                fos.write(newline.getBytes());
+                Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n");
+            }
+
+            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
+        //newly added for save conversation in a particular directory
 
+        String path = Environment.getExternalStorageDirectory().toString();
+        File file = null;
+        String newline = "\n";
+
+        file = new File(path + "/Peer 2 Peer/Saved txt files", FILE_NAME);
+
+        FileOutputStream stream;
+        try {
+            stream = new FileOutputStream(file, false);
+            for (int i = 0; i < chatFullList.size(); i++) {
+                // pw.write("It is here");
+                String l = chatFullList.get(i).getIp().concat(" : ");
+                stream.write(l.getBytes());
+                stream.write(chatFullList.get(i).getMsg().getBytes());
+                stream.write(newline.getBytes());
+                Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n"); }
+                stream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 /*
@@ -225,6 +273,16 @@ public class MainActivity extends AppCompatActivity{
         clientClass.start();
     }
 */
+    public void onSendTextFileClicked(View v){
+        generateFileManagerWindow();
+    }
+
+    private void generateFileManagerWindow() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        startActivityForResult(intent, 7);
+    }
+
 
     public void onSendClicked(View v){
         //String msg=messageEditText.getText().toString();
@@ -371,6 +429,113 @@ public class MainActivity extends AppCompatActivity{
 
         chatAdapter = new ChatMessage(this, chatFullList);
         chatList.setAdapter(chatAdapter);
+    }
+
+    //added here for file send receive
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        if (resultCode == RESULT_OK) {
+
+            Uri uri = data.getData();
+            String fileText = getTextFromUri(uri);
+            textFromFile = "#@"+fileText;
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+
+                    //String msg = "124@@@"+fileText;
+
+                    Log.d(TAG, textFromFile);
+
+                    sendReceive.write(textFromFile.getBytes());
+                }
+            }).start();
+
+        }
+
+
+    }
+
+    public String getTextFromUri(Uri uri){
+        BufferedReader reader = null;
+        StringBuilder builder = new StringBuilder();
+        try {
+            reader = new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(uri)));
+            String line = "";
+
+            while ((line = reader.readLine()) != null) {
+                builder.append("\n"+line);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    public void verifyStoragePermissions() {
+        // Check if we have write permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                requestPermissions(
+                        PERMISSIONS_STORAGE,
+                        REQUEST_EXTERNAL_STORAGE
+                );
+            }
+        }
+    }
+    private void verifyDataFolder() {
+        File folder = new File(Environment.getExternalStorageDirectory() + "/Peer 2 Peer");
+        File folder1 = new File(folder.getPath() + "/Conversations");
+        File folder2 = new File(folder.getPath() + "/Saved txt files");
+        if(!folder.exists() || !folder.isDirectory()) {
+            folder.mkdir();
+            folder1.mkdir();
+            folder2.mkdir();
+        }
+        else if(!folder1.exists())
+            folder1.mkdir();
+        else if(!folder2.exists())
+            folder2.mkdir();
+    }
+    private void writeToFile(String fileName, String data, boolean timeStamp) {
+
+        Long time= System.currentTimeMillis();
+        String timeMill = " "+time.toString();
+        String path = Environment.getExternalStorageDirectory().toString();
+        File file = null;
+        if(timeStamp)
+            file = new File(path+"/Peer 2 Peer/Conversations", fileName+timeMill+".txt");
+        else
+            file = new File(path+"/Peer 2 Peer/Saved txt files", fileName);
+        FileOutputStream stream;
+        try {
+            stream = new FileOutputStream(file, false);
+            stream.write(data.getBytes());
+            stream.close();
+            // showToast("file saved in: "+file.getPath());
+            Toast.makeText(this, "Saving Your Conversation.....", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, e.toString());
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
 }
