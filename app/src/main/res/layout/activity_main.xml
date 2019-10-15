@@ -19,7 +19,7 @@
         app:layout_constraintTop_toBottomOf="@+id/connectButton"
         app:layout_constraintVertical_bias="0.046" />-->
 
-    <EditText
+ <!--   <EditText
         android:id="@+id/targetPortEditText"
         android:layout_width="108dp"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/receiveEditText"
         app:layout_constraintTop_toBottomOf="@+id/hostButton"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0" />-->
 
     <EditText
         android:id="@+id/messageEditText"
@@ -102,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@+id/list_of_message"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Button
+ <!--   <Button
         android:id="@+id/hostButton"
         android:layout_width="157dp"
         android:layout_height="wrap_content"
@@ -186,7 +186,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/targetPortEditText" />
-
+-->
     <Button
         android:id="@+id/buttonColor"
         android:layout_width="146dp"
@@ -206,16 +206,35 @@
         app:layout_constraintHorizontal_bias="0.155"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        android:id="@+id/ConnectFriend"
+        android:layout_width="137dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/list_of_message"
+        android:layout_marginEnd="136dp"
+        android:layout_marginLeft="138dp"
+        android:layout_marginStart="138dp"
+        android:layout_marginTop="-440dp"
+        android:onClick="onConnectFriendClicked"
+        android:text="Connect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.155"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ListView
         android:id="@+id/list_of_message"
-        android:layout_width="392dp"
-        android:layout_height="178dp"
+        android:layout_width="wrap_content"
+        android:layout_height="376dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="11dp"
-        android:layout_marginTop="288dp"
+        android:layout_marginTop="90dp"
         android:background="@color/colorPrimary"
         android:divider="@android:color/transparent"
         android:dividerHeight="16dp"

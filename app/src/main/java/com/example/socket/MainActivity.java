@@ -2,6 +2,7 @@ package com.example.socket;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,9 +34,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity{
 
     EditText receivePortEditText, targetPortEditText, messageEditText, targetIPEditText;
+    Button hostButton, connectButton;
     //  TextView chatText;
     Button changeColor;
     ListView chatList;
+
+    Dialog dialog;
 
     ServerClass serverClass;
     ClientClass clientClass;
@@ -94,16 +98,54 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        receivePortEditText = findViewById(R.id.receiveEditText);
+/*        receivePortEditText = findViewById(R.id.receiveEditText);
         targetPortEditText = findViewById(R.id.targetPortEditText);
         messageEditText = findViewById(R.id.messageEditText);
-        targetIPEditText = findViewById(R.id.targetIPEditText);
+        targetIPEditText = findViewById(R.id.targetIPEditText);*/
         //chatText = findViewById(R.id.chatText);
+        messageEditText = findViewById(R.id.messageEditText);
 
         chatList = findViewById(R.id.list_of_message);
 
         changeColor = findViewById(R.id.buttonColor);
 
+        dialog = new Dialog(this);
+
+
+    }
+
+    public void onConnectFriendClicked(View view){
+        dialog.setContentView(R.layout.contact_user);
+
+        receivePortEditText = dialog.findViewById(R.id.receiveEditText);
+        targetPortEditText = dialog.findViewById(R.id.targetPortEditText);
+        targetIPEditText = dialog.findViewById(R.id.targetIPEditText);
+
+        hostButton = dialog.findViewById(R.id.hostButton);
+        connectButton = dialog.findViewById(R.id.connectButton);
+
+        hostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String port = receivePortEditText.getText().toString();
+
+                serverClass = new ServerClass(Integer.parseInt(port));
+                serverClass.start();
+            }
+        });
+
+        connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String port = targetPortEditText.getText().toString();
+
+                clientClass = new ClientClass(targetIPEditText.getText().toString(), Integer.parseInt(port));
+                clientClass.start();
+            }
+        });
+
+
+        dialog.show();
 
     }
 
@@ -138,28 +180,28 @@ public class MainActivity extends AppCompatActivity{
 
     public void onSaveClicked(View v){
         FileOutputStream fos = null;
-        String newline = "\n";
+                    String newline = "\n";
 
-        try {
-            fos =openFileOutput(FILE_NAME, MODE_PRIVATE);
-            // PrintWriter pw = new PrintWriter(fos);
-            for(int i=0; i<chatFullList.size(); i++){
-                // pw.write("It is here");
-                String l = chatFullList.get(i).getIp().concat(" : ");
-                fos.write(l.getBytes());
-                fos.write(chatFullList.get(i).getMsg().getBytes());
-                fos.write(newline.getBytes());
-                Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n");}
+                    try {
+                        fos =openFileOutput(FILE_NAME, MODE_PRIVATE);
+                        // PrintWriter pw = new PrintWriter(fos);
+                        for(int i=0; i<chatFullList.size(); i++){
+                            // pw.write("It is here");
+                            String l = chatFullList.get(i).getIp().concat(" : ");
+                            fos.write(l.getBytes());
+                            fos.write(chatFullList.get(i).getMsg().getBytes());
+                            fos.write(newline.getBytes());
+                            Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n");}
 
-            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
+                        Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                fos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -168,6 +210,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+/*
     public void onStartServerClicked(View v){
         String port = receivePortEditText.getText().toString();
 
@@ -181,6 +224,7 @@ public class MainActivity extends AppCompatActivity{
         clientClass = new ClientClass(targetIPEditText.getText().toString(), Integer.parseInt(port));
         clientClass.start();
     }
+*/
 
     public void onSendClicked(View v){
         //String msg=messageEditText.getText().toString();
