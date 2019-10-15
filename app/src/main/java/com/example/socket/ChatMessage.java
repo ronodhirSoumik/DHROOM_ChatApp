@@ -3,6 +3,7 @@ package com.example.socket;
 import android.content.Context;
 import android.graphics.Color;
 import android.nfc.Tag;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,7 @@ import androidx.annotation.NonNull;
 public class ChatMessage extends BaseAdapter {
     private List<messageItem> messageList;
     Context context;
-    static final String TAG = "yourTag";
+    static final String TAG = "DHROOM";
 
     public ChatMessage(Context context, List<messageItem>messageList){
 
@@ -51,21 +52,26 @@ public class ChatMessage extends BaseAdapter {
         View v = View.inflate(context, R.layout.chat_messages, null);
 
         TextView messageText = v.findViewById(R.id.message_userText);
-        TextView messageIp = v.findViewById(R.id.message_ip);
+        //TextView messageIp = v.findViewById(R.id.message_ip);
         TextView messageText2 = v.findViewById(R.id.message_userText2);
-        TextView messageIp2 = v.findViewById(R.id.message_ip2);
+        //TextView messageIp2 = v.findViewById(R.id.message_ip2);
+        LinearLayout sender = v.findViewById(R.id.sender);
+        LinearLayout receiver = v.findViewById(R.id.receiver);
 
         if(messageList.get(position).getIp().equals("10")){
-            messageText.setText(messageList.get(position).getMsg());
-            messageIp.setText(messageList.get(position).getIp());
-            messageText2.setVisibility(View.INVISIBLE);
-            messageIp2.setVisibility(View.INVISIBLE);
+            messageText2.setText(messageList.get(position).getMsg());
+        //    messageIp2.setText(messageList.get(position).getIp());
+            messageText.setVisibility(View.INVISIBLE);
+            //messageIp.setVisibility(View.INVISIBLE);
+            receiver.setVisibility(View.INVISIBLE);
+
         }
         else{
-            messageText.setVisibility(View.INVISIBLE);
-            messageIp.setVisibility(View.INVISIBLE);
-            messageText2.setText(messageList.get(position).getMsg());
-            messageIp2.setText(messageList.get(position).getIp());
+            messageText2.setVisibility(View.INVISIBLE);
+           // messageIp2.setVisibility(View.INVISIBLE);
+            messageText.setText(messageList.get(position).getMsg());
+           // messageIp.setText(messageList.get(position).getIp());
+            sender.setVisibility(View.INVISIBLE);
         }
 
 

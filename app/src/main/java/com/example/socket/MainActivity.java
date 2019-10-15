@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity{
     String textFromFile= "";
 
     String chatMessage = "";
-    String colorCode =  "#*green";
+    String colorCode =  "#*white";
 
     Boolean setColor = false;
 
@@ -83,14 +84,14 @@ public class MainActivity extends AppCompatActivity{
                         if (tempMsg.charAt(1) == '*') {
 
                             Log.d(TAG, "Color is: " + tempMsg);
-                            if (tempMsg.equals("#*green")) {
+                            if (tempMsg.equals("#*white")) {
                                 setColor = false;
                                 Log.d(TAG, "SetColor is: " + setColor);
-                                chatList.setBackgroundColor(Color.parseColor("#008577"));
+                                chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
                             } else {
                                 setColor = true;
                                 Log.d(TAG, "SetColor is: " + setColor);
-                                chatList.setBackgroundColor(Color.parseColor("#00574B"));
+                                chatList.setBackgroundColor(Color.parseColor("#07090F"));
 
                             }
 
@@ -127,6 +128,9 @@ public class MainActivity extends AppCompatActivity{
         messageEditText = findViewById(R.id.messageEditText);
 
         chatList = findViewById(R.id.list_of_message);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
 
         changeColor = findViewById(R.id.buttonColor);
 
@@ -177,13 +181,13 @@ public class MainActivity extends AppCompatActivity{
         if(setColor == false){
             colorCode = "#*dark";
             setColor = true;
-            chatList.setBackgroundColor(Color.parseColor("#00574B"));
+            chatList.setBackgroundColor(Color.parseColor("#07090F"));
 
         }
         else {
-            colorCode = "#*green";
+            colorCode = "#*white";
             setColor = false;
-            chatList.setBackgroundColor(Color.parseColor("#008577"));
+            chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
         }
 
         new Thread(new Runnable(){
@@ -238,15 +242,24 @@ public class MainActivity extends AppCompatActivity{
         File file = null;
         String newline = "\n";
 
+
         file = new File(path + "/Peer 2 Peer/Saved txt files", FILE_NAME);
+
+        Toast.makeText(this, "Chat conversation is saved successfully", Toast.LENGTH_SHORT).show();
 
         FileOutputStream stream;
         try {
             stream = new FileOutputStream(file, false);
             for (int i = 0; i < chatFullList.size(); i++) {
+                String a ="";
                 // pw.write("It is here");
-                String l = chatFullList.get(i).getIp().concat(" : ");
-                stream.write(l.getBytes());
+               // String l = chatFullList.get(i).getIp().concat(" : ");
+                String l = chatFullList.get(i).getIp();
+                if(l.equals("10")){
+                    a = a.concat("me : ");
+                }
+                else a =  a.concat("sender : ");
+                stream.write(a.getBytes());
                 stream.write(chatFullList.get(i).getMsg().getBytes());
                 stream.write(newline.getBytes());
                 Log.d(TAG, chatFullList.get(i).getIp() + " : " + chatFullList.get(i).getMsg() + "\n"); }
