@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity{
     Button changeColor;
     ListView chatList;
 
-    Dialog dialog;
+    Dialog dialog, sec_dialog;
 
     ServerClass serverClass;
     ClientClass clientClass;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity{
 
     String chatMessage = "";
     String colorCode =  "#*white";
+
+    public static String deviceIP = "";
 
     Boolean setColor = false;
 
@@ -79,7 +83,10 @@ public class MainActivity extends AppCompatActivity{
             {
                 case MESSAGE_READ:
                     byte[] readBuff= (byte[]) msg.obj;
-                    String tempMsg=new String(readBuff,0,msg.arg1);
+                    String fullMsg = new String(readBuff, 0, msg.arg1);
+                    String[] temp = fullMsg.split("016@74");
+                    String tempMsg = temp[0];
+
                     if(tempMsg.charAt(0) == '#') {
                         if (tempMsg.charAt(1) == '*') {
 
@@ -87,11 +94,13 @@ public class MainActivity extends AppCompatActivity{
                             if (tempMsg.equals("#*white")) {
                                 setColor = false;
                                 Log.d(TAG, "SetColor is: " + setColor);
-                                chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                                //chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                                chatList.setBackgroundResource(R.drawable.a);
                             } else {
                                 setColor = true;
                                 Log.d(TAG, "SetColor is: " + setColor);
-                                chatList.setBackgroundColor(Color.parseColor("#07090F"));
+                               // chatList.setBackgroundColor(Color.parseColor("#07090F"));
+                                chatList.setBackgroundResource(R.drawable.b);
 
                             }
 
@@ -105,8 +114,9 @@ public class MainActivity extends AppCompatActivity{
                     }
 
                     else {
+                        String senderName = temp[1];
                         //chatText.setText(tempMsg);
-                        displayChat(tempMsg);
+                        displayChat(tempMsg, senderName);
                     }
                     break;
             }
@@ -134,7 +144,8 @@ public class MainActivity extends AppCompatActivity{
 
         changeColor = findViewById(R.id.buttonColor);
 
-        dialog = new Dialog(this);
+        //now changeddialog = new Dialog(this);
+        sec_dialog = new Dialog(this);
 
         verifyDataFolder();
         verifyStoragePermissions();
@@ -142,16 +153,16 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void onConnectFriendClicked(View view){
-        dialog.setContentView(R.layout.contact_user);
+       //now changed dialog.setContentView(R.layout.contact_user);
 
-        receivePortEditText = dialog.findViewById(R.id.receiveEditText);
-        targetPortEditText = dialog.findViewById(R.id.targetPortEditText);
-        targetIPEditText = dialog.findViewById(R.id.targetIPEditText);
+        //now changedreceivePortEditText = dialog.findViewById(R.id.receiveEditText);
+     //   targetPortEditText = dialog.findViewById(R.id.targetPortEditText);
+     //   targetIPEditText = dialog.findViewById(R.id.targetIPEditText);
 
-        hostButton = dialog.findViewById(R.id.hostButton);
-        connectButton = dialog.findViewById(R.id.connectButton);
+        //now changedhostButton = dialog.findViewById(R.id.hostButton);
+    //    connectButton = dialog.findViewById(R.id.connectButton);
 
-        hostButton.setOnClickListener(new View.OnClickListener() {
+/* now changed       hostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String port = receivePortEditText.getText().toString();
@@ -159,7 +170,33 @@ public class MainActivity extends AppCompatActivity{
                 serverClass = new ServerClass(Integer.parseInt(port));
                 serverClass.start();
             }
-        });
+        });*/
+
+/*        connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String port = targetPortEditText.getText().toString();
+
+                clientClass = new ClientClass(targetIPEditText.getText().toString(), Integer.parseInt(port));
+                clientClass.start();
+            }
+        });*/
+        serverClass = new ServerClass(Integer.parseInt("8080"));
+        serverClass.start();
+
+
+       //now changed dialog.show();
+
+    }
+
+    public void onConnectServer(View V){
+        sec_dialog.setContentView(R.layout.contact_server);
+
+
+        targetPortEditText = sec_dialog.findViewById(R.id.targetPortEditText);
+        targetIPEditText = sec_dialog.findViewById(R.id.targetIPEditText);
+
+        connectButton = sec_dialog.findViewById(R.id.connectButton);
 
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,7 +209,7 @@ public class MainActivity extends AppCompatActivity{
         });
 
 
-        dialog.show();
+        sec_dialog.show();
 
     }
 
@@ -181,13 +218,15 @@ public class MainActivity extends AppCompatActivity{
         if(setColor == false){
             colorCode = "#*dark";
             setColor = true;
-            chatList.setBackgroundColor(Color.parseColor("#07090F"));
+            //chatList.setBackgroundColor(Color.parseColor("#07090F"));
+            chatList.setBackgroundResource(R.drawable.b);
 
         }
         else {
             colorCode = "#*white";
             setColor = false;
-            chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            //chatList.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            chatList.setBackgroundResource(R.drawable.a);
         }
 
         new Thread(new Runnable(){
@@ -243,7 +282,7 @@ public class MainActivity extends AppCompatActivity{
         String newline = "\n";
 
 
-        file = new File(path + "/Peer 2 Peer/Saved txt files", FILE_NAME);
+        file = new File(path + "/Socket/Save Conversations", FILE_NAME);
 
         Toast.makeText(this, "Chat conversation is saved successfully", Toast.LENGTH_SHORT).show();
 
@@ -256,9 +295,9 @@ public class MainActivity extends AppCompatActivity{
                // String l = chatFullList.get(i).getIp().concat(" : ");
                 String l = chatFullList.get(i).getIp();
                 if(l.equals("10")){
-                    a = a.concat("me : ");
+                    a = a.concat(chatFullList.get(i).getName() + " : ");
                 }
-                else a =  a.concat("sender : ");
+                else a = a.concat(chatFullList.get(i).getName() + " : ");
                 stream.write(a.getBytes());
                 stream.write(chatFullList.get(i).getMsg().getBytes());
                 stream.write(newline.getBytes());
@@ -307,8 +346,10 @@ public class MainActivity extends AppCompatActivity{
 
         //ownAdapter = new OwnMessage(this, ownChatList);
         // chatList.setAdapter(ownAdapter);
+        Long time= System.currentTimeMillis();
+        String timeMill = " "+time.toString();
 
-        chatFullList.add(new messageItem(chatMessage, "10"));
+        chatFullList.add(new messageItem(chatMessage, "10", deviceIP, timeMill));
 
         chatAdapter = new ChatMessage(this, chatFullList);
         chatList.setAdapter(chatAdapter);
@@ -318,6 +359,11 @@ public class MainActivity extends AppCompatActivity{
             public void run() {
                 try {
                     //String msg = "Hello Soumik";
+                    //String name = "Abser";
+
+                    String name = "Soumik";
+
+                    chatMessage = chatMessage.concat("016@74"+deviceIP);
 
                     sendReceive.write(chatMessage.getBytes());
                 }
@@ -344,11 +390,18 @@ public class MainActivity extends AppCompatActivity{
             try {
                 serverSocket=new ServerSocket(port);
                 Log.d(TAG, "Waiting for client...");
+                //Toast.makeText(getApplicationContext(), "Server Started........waiting for client", Toast.LENGTH_SHORT).show();
                 socket=serverSocket.accept();
+               //Toast.makeText(getApplicationContext(), "Connection established from server", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Connection established from server");
+                Log.d(TAG, "From Server: "+socket.getLocalAddress().toString());
+                deviceIP = socket.getLocalAddress().toString();
+                deviceIP = deviceIP.replace("/","");
+
                 //sendReceive=new SendReceive(socket);
                 sendReceive= new SendReceive(socket);
                 sendReceive.start();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "ERROR/n"+e);
@@ -420,15 +473,22 @@ public class MainActivity extends AppCompatActivity{
             this.hostAdd = hostAddress;
         }
 
+
         @Override
         public void run() {
             try {
 
                 socket=new Socket(hostAdd, port);
+                //Toast.makeText(getApplicationContext(), "Client is connected to server", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Client is connected to server");
+                Log.d(TAG, "From Client: "+socket.getLocalAddress().toString());
+                deviceIP = socket.getLocalAddress().toString();
+                deviceIP = deviceIP.replace("/","");
                 //sendReceive=new SendReceive(socket);
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
+
+
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Can't connect from client/n"+e);
@@ -436,9 +496,11 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public void displayChat(String m){
+    public void displayChat(String m, String name){
+        Long time= System.currentTimeMillis();
+        String timeMill = " "+time.toString();
 
-        chatFullList.add(new messageItem(m ,"11"));
+        chatFullList.add(new messageItem(m ,"11",  name,timeMill));
 
         chatAdapter = new ChatMessage(this, chatFullList);
         chatList.setAdapter(chatAdapter);
@@ -514,9 +576,9 @@ public class MainActivity extends AppCompatActivity{
         }
     }
     private void verifyDataFolder() {
-        File folder = new File(Environment.getExternalStorageDirectory() + "/Peer 2 Peer");
-        File folder1 = new File(folder.getPath() + "/Conversations");
-        File folder2 = new File(folder.getPath() + "/Saved txt files");
+        File folder = new File(Environment.getExternalStorageDirectory() + "/Socket");
+        File folder1 = new File(folder.getPath() + "/Save Conversations");
+        File folder2 = new File(folder.getPath() + "/Files");
         if(!folder.exists() || !folder.isDirectory()) {
             folder.mkdir();
             folder1.mkdir();
@@ -534,9 +596,9 @@ public class MainActivity extends AppCompatActivity{
         String path = Environment.getExternalStorageDirectory().toString();
         File file = null;
         if(timeStamp)
-            file = new File(path+"/Peer 2 Peer/Conversations", fileName+timeMill+".txt");
+            file = new File(path+"/Socket/Files", fileName+timeMill+".txt");
         else
-            file = new File(path+"/Peer 2 Peer/Saved txt files", fileName);
+            file = new File(path+"/Socket/Save Conversations", fileName);
         FileOutputStream stream;
         try {
             stream = new FileOutputStream(file, false);

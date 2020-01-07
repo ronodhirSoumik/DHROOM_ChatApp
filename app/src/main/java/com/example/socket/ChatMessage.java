@@ -52,29 +52,33 @@ public class ChatMessage extends BaseAdapter {
         View v = View.inflate(context, R.layout.chat_messages, null);
 
         TextView messageText = v.findViewById(R.id.message_userText);
-        //TextView messageIp = v.findViewById(R.id.message_ip);
+        TextView messageIp = v.findViewById(R.id.message_ip);
+        TextView messagetime = v.findViewById(R.id.message_time);
         TextView messageText2 = v.findViewById(R.id.message_userText2);
-        //TextView messageIp2 = v.findViewById(R.id.message_ip2);
+        TextView messageIp2 = v.findViewById(R.id.message_ip2);
+        TextView messagetime2 = v.findViewById(R.id.message_time2);
         LinearLayout sender = v.findViewById(R.id.sender);
         LinearLayout receiver = v.findViewById(R.id.receiver);
 
         if(messageList.get(position).getIp().equals("10")){
             messageText2.setText(messageList.get(position).getMsg());
-        //    messageIp2.setText(messageList.get(position).getIp());
+            messageIp2.setText(messageList.get(position).getName());
+            messagetime2.setText(messageList.get(position).getTime());
             messageText.setVisibility(View.INVISIBLE);
-            //messageIp.setVisibility(View.INVISIBLE);
+            messageIp.setVisibility(View.INVISIBLE);
+            messagetime.setVisibility(View.INVISIBLE);
             receiver.setVisibility(View.INVISIBLE);
 
         }
         else{
             messageText2.setVisibility(View.INVISIBLE);
-           // messageIp2.setVisibility(View.INVISIBLE);
+            messageIp2.setVisibility(View.INVISIBLE);
+            messagetime2.setVisibility(View.INVISIBLE);
             messageText.setText(messageList.get(position).getMsg());
-           // messageIp.setText(messageList.get(position).getIp());
+            messageIp.setText(messageList.get(position).getName());
+            messagetime.setText(messageList.get(position).getTime());
             sender.setVisibility(View.INVISIBLE);
         }
-
-
 
         return v;
     }
